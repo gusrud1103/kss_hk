@@ -39,7 +39,7 @@ def load_data(mode="train"):
         # Parse
         fpaths, text_lengths, texts = [], [], []
         transcript = os.path.join(hp.data, 'transcript.v.1.1.txt')
-        lines = codecs.open(transcript, 'r', 'utf-8').readlines()
+        lines = codecs.open(transcript, 'rb', 'utf-8').readlines()
         for line in lines:
             fname, _, expanded, text, _ = line.strip().split("|")
 
@@ -84,7 +84,7 @@ def load_data(mode="train"):
             text = [char2idx[char] for char in text]
             return text
 
-        lines = codecs.open(hp.test_data, 'r', 'utf8').read().splitlines()
+        lines = codecs.open(hp.test_data, 'rb', 'utf8').read().splitlines()
         sents = [_normalize(line) for line in lines[1:]]
         texts = np.zeros((len(sents), hp.max_N), np.int32)
         for i, sent in enumerate(sents):
@@ -109,8 +109,12 @@ def get_batch():
 
         def _load_spectrograms(fpath):
             fname = os.path.basename(fpath)
-            mel = "/data/private/kss/dc_tts/mels/{}".format(fname.replace("wav", "npy"))
-            mag = "/data/private/kss/dc_tts/mags/{}".format(fname.replace("wav", "npy"))
+            print("hello?")
+            mel = "./mels/{}".format(str(fname).replace("wav", "npy"))
+            mel = mel.replace("b'","").replace("'","")
+            mag = "./mags/{}".format(str(fname).replace("wav", "npy"))
+            mag = mag.replace("b'","").replace("'","")
+
             return fname, np.load(mel), np.load(mag)
 
         fname, mel, mag = tf.py_func(_load_spectrograms, [fpath], [tf.string, tf.float32, tf.float32])
